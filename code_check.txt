@@ -1,0 +1,2 @@
+pycodestyle --exclude=venv .
+autopep8 --exclude=venv --recursive --aggressive --in-place .
