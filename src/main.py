@@ -4,22 +4,31 @@ import os
 import file_service as fs
 import exception
 
+import logging
+
 commands = {
     "create": fs.create,
     "delete": fs.delete,
     "read": fs.read,
-    "print_matadata": fs.print_matadata,
+    "print_matadata": fs.print_metadata,
 }
 
 
 def main(storage_folder, command, args):
+    """
+    Execute user defined command
+    :param storage_folder: working folder (string)
+    :param command: command (string)
+    :param args: command args (list)
+    :return: None
+    """
     if command not in commands:
         raise exception.ArgumentException(
             "command {} not in set of commands".format(command))
 
-    print("storage folder: {}".format(storage_folder))
-    print("command: {}".format(command))
-    print("command args: {}".format(args))
+    logging.info("storage folder: {}".format(storage_folder))
+    logging.info("command: {}".format(command))
+    logging.info("command args: {}".format(args))
 
     path = fs.get_or_create_storage(storage_folder)
     commands[command](path, *args)
