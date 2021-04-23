@@ -1,1 +1,3 @@
 io.StringIO ?
+hashlib pycryptodome
+https://github.com/faif/python-patterns
