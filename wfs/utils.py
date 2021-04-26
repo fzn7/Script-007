@@ -5,9 +5,10 @@ import os
 from wfs.config import FILENAME_LENGTH
 
 
-def generate_filename(length=FILENAME_LENGTH):
+def generate_filename(length=FILENAME_LENGTH, ext: str = 'txt'):
     """
     Generate filename
+    :param ext: file extension
     :param length: filename length (int)
     :return: generated filename (string)
     """
@@ -35,3 +36,11 @@ def get_filepath(path, filename):
     """
 
     return os.path.join(path, filename)
+
+
+def get_basename(filename: str):
+    return os.path.splitext(filename)[0]
+
+
+def get_sig_name(filename: str):
+    return f"{get_basename(filename)} + '.sig'
