@@ -1,7 +1,7 @@
-import utils
+import wfs.utils as utils
 import os
 import logging
-from config import CONTENT_LENGTH
+from wfs.config import CONTENT_LENGTH
 
 
 def create(path):
