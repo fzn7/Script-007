@@ -1,11 +1,11 @@
-import file_service
 import random
 import pytest
 import tempfile
 import shutil
 import os
-from config import CONTENT_LENGTH
 
+import wfs.file_service as file_service
+from wfs.config import CONTENT_LENGTH
 
 @pytest.fixture(autouse=True)
 def set_random_seed():
@@ -23,7 +23,7 @@ def workdir():
 
 
 def test_create(workdir):
-    assert file_service.create(workdir) == workdir + '\\41pjso2k.txt'
+    assert file_service.create(workdir) == workdir + '\\y0cq65zt.txt'
 
 
 def test_delete(workdir):

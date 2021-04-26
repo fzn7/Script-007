@@ -1,4 +1,4 @@
-import utils
+import wfs.utils as utils
 import random
 import pytest
 
@@ -9,11 +9,11 @@ def set_random_seed():
 
 
 def test_generate_filename():
-    assert utils.generate_filename(10) == '41pjso2krv.txt'
+    assert utils.generate_filename(10) == 'y0cq65zt4w.txt'
 
 
 def test_generate_string():
-    assert utils.generate_string(20) == '41pjso2krv6sk1wj6936'
+    assert utils.generate_string(20) == 'y0cq65zt4wn6isigq8jt'
 
 
 def test_get_filepath():

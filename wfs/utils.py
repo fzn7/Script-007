@@ -2,7 +2,7 @@ import random
 import string
 import os
 
-from config import FILENAME_LENGTH
+from wfs.config import FILENAME_LENGTH
 
 
 def generate_filename(length=FILENAME_LENGTH):
