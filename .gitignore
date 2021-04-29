@@ -4,3 +4,4 @@ venv/
 *.pyc
 .coverage
 venv2/
+screenshots/

@@ -1,3 +1,9 @@
 io.StringIO ?
 hashlib pycryptodome
 https://github.com/faif/python-patterns
+explore GIL
+nonblocker socket
+
+aiohttp? sanic fastapi*
+
+https://gist.github.com/denyszamiatin/f3ec0e88227643905d1d3e81a0ee0f5a

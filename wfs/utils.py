@@ -43,4 +43,4 @@ def get_basename(filename: str):
 
 
 def get_sig_name(filename: str):
-    return f"{get_basename(filename)} + '.sig'
+    return f"{get_basename(filename)}.sig"
