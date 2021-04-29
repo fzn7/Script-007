@@ -1,56 +1,54 @@
-import argparse
-import os
+from typing import List
 
-from wfs import FileService as fs
-import wfs.exception as exception
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.orm import Session
 
-import logging
+from . import crud, models, schemas
+from .database import SessionLocal, engine
 
-commands = {
-    "create": fs.create,
-    "delete": fs.delete,
-    "read": fs.read,
-    "print_matadata": fs.print_metadata,
-}
+models.Base.metadata.create_all(bind=engine)
 
+app = FastAPI()
 
-def main(storage_folder, command, args):
-    """
-    Execute user defined command
-    :param storage_folder: working folder (string)
-    :param command: command (string)
-    :param args: command args (list)
-    :return: None
-    """
-    if command not in commands:
-        raise exception.ArgumentException(
-            "command {} not in set of commands".format(command))
-
-    logging.info("storage folder: {}".format(storage_folder))
-    logging.info("command: {}".format(command))
-    logging.info("command args: {}".format(args))
-
-    path = fs.get_or_create_storage(storage_folder)
-    commands[command](path, *args)
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='File System Prototype')
-    parser.add_argument(
-        "--storage_folder",
-        type=str,
-        help="storage folder for files",
-        default=os.getcwd())
-    parser.add_argument(
-        "command",
-        type=str,
-        help="fs command: {}".format(
-            commands.keys()))
-    parser.add_argument(
-        "--args",
-        nargs='+',
-        help="command arg list",
-        default=[])
-    args = parser.parse_args()
+@app.post("/users/", response_model=schemas.User)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return crud.create_user(db=db, user=user)
 
-    main(args.storage_folder, args.command, args.args)
+
+@app.get("/users/", response_model=List[schemas.User])
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    users = crud.get_users(db, skip=skip, limit=limit)
+    return users
+
+
+@app.get("/users/{user_id}", response_model=schemas.User)
+def read_user(user_id: int, db: Session = Depends(get_db)):
+    db_user = crud.get_user(db, user_id=user_id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
+
+
+@app.post("/users/{user_id}/files/", response_model=schemas.File)
+def create_file_for_user(
+    user_id: int, file: schemas.FileCreate, db: Session = Depends(get_db)
+):
+    return crud.create_user_file(db=db, file=file, user_id=user_id)
+
+
+@app.get("/files/", response_model=List[schemas.File])
+def read_files(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    files = crud.get_files(db, skip=skip, limit=limit)
+    return files
