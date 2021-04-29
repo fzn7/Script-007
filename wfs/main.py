@@ -1,8 +1,8 @@
 import argparse
 import os
 
-import file_service as fs
-import exception
+from wfs import FileService as fs
+import wfs.exception as exception
 
 import logging
 
