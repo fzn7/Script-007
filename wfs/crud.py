@@ -1,10 +1,13 @@
 import hashlib
-from sqlalchemy.orm import Session
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from . import models, schemas, fs, config, utils
 
 
-def get_user(db: Session, user_id: int):
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+async def get_user(db: AsyncSession, user_id: int):
+    db_execute = await db.execute(select(models.User).where(models.User.id == user_id))
+    user = db_execute.scalars().first()
 
     for file in user.files:
         if file.filepath:
@@ -13,15 +16,17 @@ def get_user(db: Session, user_id: int):
     return user
 
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
+async def get_user_by_email(db: AsyncSession, email: str):
+    db_execute = await db.execute(select(models.User).where(models.User.email == email))
+    return db_execute.scalars().first()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.User).offset(skip).limit(limit).all()
+async def get_users(db: AsyncSession, skip: int = 0, limit: int = 100):
+    db_execute = await db.execute(select(models.User).offset(skip).limit(limit))
+    return db_execute.scalars().all()
 
 
-def create_user(db: Session, user: schemas.UserCreate):
+async def create_user(db: AsyncSession, user: schemas.UserCreate):
     hashed_password = hashlib.sha512(
         (user.password +
          config.ENCRYPTION_KEY +
@@ -29,15 +34,14 @@ def create_user(db: Session, user: schemas.UserCreate):
             config.DEFAULT_ENCODING)).hexdigest()
     db_user = models.User(email=user.email, hashed_password=hashed_password)
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    await db.commit()
+    await db.refresh(db_user)
     return db_user
 
 
-def get_files(db: Session, skip: int = 0, limit: int = 100):
-    files = db.query(models.File).offset(skip).limit(limit).all()
-
-    print(files)
+async def get_files(db: AsyncSession, skip: int = 0, limit: int = 100):
+    db_execute = await db.execute(select(models.File).offset(skip).limit(limit))
+    files = db_execute.scalars().all()
 
     for file in files:
         if file.filepath:
@@ -46,7 +50,7 @@ def get_files(db: Session, skip: int = 0, limit: int = 100):
     return files
 
 
-def create_user_file(db: Session, file: schemas.FileCreate, user_id: int):
+async def create_user_file(db: AsyncSession, file: schemas.FileCreate, user_id: int):
     filepath = utils.generate_string(config.FILENAME_LENGTH)
     fs.create(config.STORAGE_DIR, filepath, file.content)
 
@@ -55,8 +59,8 @@ def create_user_file(db: Session, file: schemas.FileCreate, user_id: int):
         filepath=filepath,
         owner_id=user_id)
     db.add(db_file)
-    db.commit()
-    db.refresh(db_file)
+    await db.commit()
+    await db.refresh(db_file)
 
     db_file.content = file.content
 

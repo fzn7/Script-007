@@ -12,7 +12,9 @@ class User(Base):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
 
-    files = relationship("File", back_populates="owner")
+    # Lazy is workaround for async, use either "subquery" or "selectin"
+    # More info: https://github.com/tiangolo/fastapi/pull/2331#issuecomment-801461215 and https://github.com/tiangolo/fastapi/pull/2331#issuecomment-807528963
+    items = relationship("Item", back_populates="owner", lazy="subquery")
 
 
 class File(Base):
